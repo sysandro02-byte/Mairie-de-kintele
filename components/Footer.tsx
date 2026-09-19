@@ -19,6 +19,7 @@ export default function Footer() {
           <h3>La mairie</h3>
           <p>Avenue de l’Université, Kintélé</p>
           <p>Du lundi au vendredi · 8h00–15h30</p>
+          <a href="mailto:mairie@kintele.cg">mairie@kintele.cg</a>
           <Link href="/contact">Nous contacter</Link>
         </div>
         <div>
