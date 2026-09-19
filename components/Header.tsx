@@ -1,5 +1,12 @@
 import Link from "next/link";
 
+const navigation = [
+  { href: "/demarches", label: "Démarches" },
+  { href: "/commune", label: "Ma commune" },
+  { href: "/actualites", label: "Actualités" },
+  { href: "/contact", label: "Contact" },
+];
+
 export default function Header() {
   return (
     <>
@@ -22,13 +29,27 @@ export default function Header() {
               <small>Portail municipal</small>
             </span>
           </Link>
+
           <nav className="main-nav" aria-label="Navigation principale">
-            <Link href="/demarches">Démarches</Link>
-            <Link href="/commune">Ma commune</Link>
-            <Link href="/actualites">Actualités</Link>
-            <Link href="/contact">Contact</Link>
+            {navigation.map((item) => (
+              <Link href={item.href} key={item.href}>{item.label}</Link>
+            ))}
           </nav>
+
           <Link href="/demarches" className="header-cta">Mes démarches</Link>
+
+          <details className="mobile-menu">
+            <summary aria-label="Ouvrir le menu">
+              <span aria-hidden="true">☰</span>
+              <span>Menu</span>
+            </summary>
+            <nav aria-label="Navigation mobile">
+              {navigation.map((item) => (
+                <Link href={item.href} key={item.href}>{item.label}</Link>
+              ))}
+              <Link href="/demarches" className="mobile-menu-cta">Mes démarches</Link>
+            </nav>
+          </details>
         </div>
       </header>
     </>
