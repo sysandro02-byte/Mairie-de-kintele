@@ -211,3 +211,40 @@ export async function getDocumentTypes() {
     DEFAULT_DOCUMENT_TYPES
   );
 }
+
+
+export const DEFAULT_SITE_CONTENT: Record<string, string> = {
+  "home.city_intro": "Commune de la périphérie nord-est de Brazzaville, Kintélé rassemble environ 71 629 habitants et poursuit son développement autour de l’éducation, du sport, des mobilités et du cadre de vie.",
+  "home.population": "71 629",
+  "home.seats": "25",
+  "home.commune_since": "2017",
+  "home.mayor_name": "Stella Mensah Sassou N’Guesso",
+  "home.mayor_role": "Députée-maire de la commune de Kintélé",
+  "home.territory_title": "Étudier, entreprendre, vivre à Kintélé",
+  "home.territory_text": "Université Denis Sassou N’Guesso, complexe sportif de la Concorde, viaduc Talangaï–Kintélé et nouveaux quartiers : la commune bénéficie d’équipements structurants à l’échelle métropolitaine.",
+  "commune.intro": "Une commune de la métropole brazzavilloise, tournée vers l’éducation, le sport, les mobilités et le développement urbain.",
+  "commune.history": "Kintélé se situe au nord-est de Brazzaville et est reliée à la capitale notamment par le viaduc Talangaï–Kintélé. La commune a été érigée en commune à part entière en 2017 et relève du département de Brazzaville.",
+  "commune.equipment": "Le complexe sportif de la Concorde, l’Université Denis Sassou N’Guesso, le Grand Hôtel de Kintélé et les axes routiers structurants contribuent au rayonnement de la commune.",
+  "contact.address": "Avenue de l’Université, Kintélé, République du Congo",
+  "contact.hours": "Du lundi au vendredi · 8h00–15h30",
+  "contact.email": "mairie@kintele.cg",
+};
+
+export async function getSiteContent() {
+  const supabase = getSupabasePublicClient();
+  if (!supabase) return DEFAULT_SITE_CONTENT;
+
+  try {
+    const { data, error } = await supabase.from("site_content").select("key, value");
+    if (error || !data) return DEFAULT_SITE_CONTENT;
+    return data.reduce<Record<string, string>>(
+      (acc, item) => {
+        acc[item.key] = item.value ?? "";
+        return acc;
+      },
+      { ...DEFAULT_SITE_CONTENT }
+    );
+  } catch {
+    return DEFAULT_SITE_CONTENT;
+  }
+}
