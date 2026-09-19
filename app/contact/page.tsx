@@ -16,6 +16,7 @@ export default function ContactPage() {
               <h2>Mairie de Kintélé</h2>
               <p><strong>Adresse</strong><br />Avenue de l’Université, Kintélé<br />République du Congo</p>
               <p><strong>Horaires publiés</strong><br />Du lundi au vendredi · 8h00–15h30</p>
+              <p><strong>E-mail institutionnel référencé</strong><br /><a className="text-link" href="mailto:mairie@kintele.cg">mairie@kintele.cg</a></p>
             </article>
             <article className="info-card">
               <h3>Avant de vous déplacer</h3>
@@ -31,7 +32,7 @@ export default function ContactPage() {
               <p><strong>Vie locale</strong><br />Associations, événements, initiatives citoyennes et informations municipales.</p>
               <p><strong>Secrétariat municipal</strong><br />Courriers, rendez-vous et orientation générale.</p>
             </div>
-            <a className="button button-primary" href="mailto:contact@xn--communedekintl-nkbb.com">Écrire à la mairie</a>
+            <a className="button button-primary" href="mailto:mairie@kintele.cg">Écrire à la mairie</a>
           </article>
         </div>
       </section>
