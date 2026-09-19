@@ -7,7 +7,6 @@ export default function AdminLoginPage() {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [mode, setMode] = useState<"login" | "signup">("login");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -15,29 +14,42 @@ export default function AdminLoginPage() {
     setMessage("");
 
     if (!isSupabaseConfigured() || !supabase) {
-      setMessage("La base Supabase n’est pas encore reliée au site.");
+      setMessage("L’authentification du backoffice n’est pas encore reliée à Supabase.");
       setLoading(false);
       return;
     }
 
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") || "").trim().toLowerCase();
+    const loginId = String(form.get("login_id") || "").trim().toLowerCase();
     const password = String(form.get("password") || "");
 
-    if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({ email, password });
-      setMessage(
-        error
-          ? error.message
-          : "Compte créé. Vérifiez votre e-mail si la confirmation est activée, puis connectez-vous."
-      );
+    if (!/^[a-z0-9._-]{3,40}$/.test(loginId)) {
+      setMessage("L’identifiant doit contenir entre 3 et 40 caractères : lettres, chiffres, point, tiret ou underscore.");
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginId, password }),
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result?.accessToken || !result?.refreshToken) {
+      setMessage(result?.message || "Identifiant ou mot de passe incorrect.");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.setSession({
+      access_token: result.accessToken,
+      refresh_token: result.refreshToken,
+    });
+
     if (error) {
-      setMessage("Connexion impossible. Vérifiez l’adresse e-mail et le mot de passe.");
+      setMessage("La session administrateur n’a pas pu être ouverte.");
       setLoading(false);
       return;
     }
@@ -49,44 +61,51 @@ export default function AdminLoginPage() {
     <section className="admin-login-page">
       <div className="admin-login-card">
         <span className="eyebrow">Backoffice sécurisé</span>
-        <h1>Mairie de Kintélé</h1>
-        <p>Connectez-vous pour gérer le contenu du portail municipal et les demandes reçues.</p>
+        <h1>Connexion administrateur</h1>
+        <p>
+          Entrez votre identifiant administrateur et votre mot de passe pour accéder
+          à la gestion du portail de la Mairie de Kintélé.
+        </p>
 
         <form onSubmit={submit}>
           <label>
-            <span>Adresse e-mail</span>
-            <input name="email" type="email" autoComplete="email" required />
+            <span>ID administrateur</span>
+            <input
+              name="login_id"
+              type="text"
+              autoComplete="username"
+              placeholder="Ex. mederic.admin"
+              minLength={3}
+              maxLength={40}
+              pattern="[A-Za-z0-9._-]+"
+              required
+            />
           </label>
+
           <label>
             <span>Mot de passe</span>
             <input
               name="password"
               type="password"
               minLength={8}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              autoComplete="current-password"
               required
             />
           </label>
-          {message && <div className="admin-login-message" role="status">{message}</div>}
+
+          {message && <div className="admin-login-message" role="alert">{message}</div>}
+
           <button className="button button-primary" type="submit" disabled={loading}>
-            {loading ? "Veuillez patienter…" : mode === "login" ? "Se connecter" : "Créer mon compte"}
+            {loading ? "Connexion…" : "Entrer dans le backoffice"}
           </button>
         </form>
 
-        <button
-          className="admin-login-switch"
-          type="button"
-          onClick={() => {
-            setMode(mode === "login" ? "signup" : "login");
-            setMessage("");
-          }}
-        >
-          {mode === "login"
-            ? "Première connexion ? Créer le compte administrateur"
-            : "J’ai déjà un compte administrateur"}
-        </button>
+        <div className="admin-account-actions">
+          <span>Vous n’avez pas encore de compte ?</span>
+          <a className="text-link" href="/admin/inscription">Créer un compte administrateur →</a>
+        </div>
 
-        <a className="text-link" href="/">← Retour au site</a>
+        <a className="text-link admin-back-link" href="/">← Retour au site</a>
       </div>
     </section>
   );
