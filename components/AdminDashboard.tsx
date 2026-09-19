@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const [authorized, setAuthorized] = useState(false);
   const [message, setMessage] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [adminLoginId, setAdminLoginId] = useState("");
   const [slides, setSlides] = useState<Row[]>([]);
   const [services, setServices] = useState<Row[]>([]);
   const [news, setNews] = useState<Row[]>([]);
@@ -78,7 +79,7 @@ export default function AdminDashboard() {
       setUserEmail(data.user.email || "");
       const { data: admin } = await supabase
         .from("admin_users")
-        .select("id, active")
+        .select("id, active, login_id")
         .eq("user_id", data.user.id)
         .eq("active", true)
         .maybeSingle();
@@ -89,6 +90,7 @@ export default function AdminDashboard() {
         return;
       }
 
+      setAdminLoginId(admin.login_id || "");
       setAuthorized(true);
       await loadAll();
       setLoading(false);
@@ -191,6 +193,7 @@ export default function AdminDashboard() {
         <div>
           <span className="admin-kicker">Administration</span>
           <h1>Mairie de Kintélé</h1>
+          {adminLoginId && <p><strong>ID :</strong> {adminLoginId}</p>}
           <p>{userEmail}</p>
         </div>
         <nav>
