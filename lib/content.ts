@@ -165,7 +165,10 @@ export const DEFAULT_NEWS: NewsItem[] = [
   },
 ];
 
-async function safeQuery<T>(query: PromiseLike<{ data: T[] | null; error: unknown }>, fallback: T[]) {
+async function safeQuery<T>(
+  query: PromiseLike<{ data: T[] | null; error: unknown }>,
+  fallback: T[]
+): Promise<T[]> {
   try {
     const { data, error } = await query;
     if (error || !data || data.length === 0) return fallback;
@@ -175,7 +178,11 @@ async function safeQuery<T>(query: PromiseLike<{ data: T[] | null; error: unknow
   }
 }
 
-export async function getHomeContent() {
+export async function getHomeContent(): Promise<{
+  slides: HeroSlide[];
+  services: MunicipalService[];
+  news: NewsItem[];
+}> {
   const supabase = getSupabasePublicClient();
   if (!supabase) {
     return {
@@ -203,7 +210,7 @@ export async function getHomeContent() {
   return { slides, services, news };
 }
 
-export async function getDocumentTypes() {
+export async function getDocumentTypes(): Promise<DocumentType[]> {
   const supabase = getSupabasePublicClient();
   if (!supabase) return DEFAULT_DOCUMENT_TYPES;
   return safeQuery(
@@ -230,7 +237,7 @@ export const DEFAULT_SITE_CONTENT: Record<string, string> = {
   "contact.email": "mairie@kintele.cg",
 };
 
-export async function getSiteContent() {
+export async function getSiteContent(): Promise<Record<string, string>> {
   const supabase = getSupabasePublicClient();
   if (!supabase) return DEFAULT_SITE_CONTENT;
 
