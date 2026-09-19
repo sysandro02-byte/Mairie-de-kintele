@@ -16,7 +16,6 @@ export default function Header() {
           <span className="republic-motto">Unité • Travail • Progrès</span>
         </div>
       </div>
-
       <header className="site-header">
         <div className="container header-main">
           <Link href="/" className="brand" aria-label="Accueil — Mairie de Kintélé">
@@ -33,27 +32,24 @@ export default function Header() {
 
           <nav className="main-nav" aria-label="Navigation principale">
             {navigation.map((item) => (
-              <Link href={item.href} key={item.href}>
-                {item.label}
-              </Link>
+              <Link href={item.href} key={item.href}>{item.label}</Link>
             ))}
           </nav>
 
-          <Link href="/demarches" className="header-cta">
-            Mes démarches
-          </Link>
-        </div>
+          <Link href="/demarches" className="header-cta">Mes démarches</Link>
 
-        <div className="mobile-nav-wrap">
-          <div className="container">
-            <nav className="mobile-nav" aria-label="Navigation mobile">
+          <details className="mobile-menu">
+            <summary aria-label="Ouvrir le menu">
+              <span aria-hidden="true">☰</span>
+              <span>Menu</span>
+            </summary>
+            <nav aria-label="Navigation mobile">
               {navigation.map((item) => (
-                <Link href={item.href} key={item.href}>
-                  {item.label}
-                </Link>
+                <Link href={item.href} key={item.href}>{item.label}</Link>
               ))}
+              <Link href="/demarches" className="mobile-menu-cta">Mes démarches</Link>
             </nav>
-          </div>
+          </details>
         </div>
       </header>
     </>
