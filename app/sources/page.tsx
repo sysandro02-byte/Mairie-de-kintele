@@ -12,6 +12,7 @@ export default function SourcesPage() {
         <div className="container legal-copy">
           <h2>Informations institutionnelles</h2>
           <div className="source-list">
+            <a href="https://www.armp.cg/services-masters.php" target="_blank" rel="noreferrer">ARMP Congo — Conseil municipal de Kintélé et adresse mairie@kintele.cg</a>
             <a href="https://sgg.cg/JO/2026/congo-jo-2026-8.pdf" target="_blank" rel="noreferrer">Journal officiel de la République du Congo — répartition des sièges municipaux, 2026</a>
             <a href="https://archive.gazettes.africa/archive/cg/2024/cg-journal-officiel-dated-2024-10-17-no-42.pdf" target="_blank" rel="noreferrer">Loi n°29-2024 — rattachement de Kintélé au département de Brazzaville</a>
             <a href="https://www.adiac-congo.com/content/consolidation-de-la-paix-la-mairie-de-kintele-initie-des-journees-de-priere-en-faveur-de-la" target="_blank" rel="noreferrer">Les Dépêches de Brazzaville — fonction de la députée-maire, février 2026</a>
