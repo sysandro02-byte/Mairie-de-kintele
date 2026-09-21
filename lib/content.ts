@@ -194,15 +194,15 @@ export async function getHomeContent(): Promise<{
 
   const [slides, services, news] = await Promise.all([
     safeQuery(
-      supabase.from("hero_slides").select("*").eq("active", true).order("sort_order"),
+      supabase.from("mairie_hero_slides").select("*").eq("active", true).order("sort_order"),
       DEFAULT_SLIDES
     ),
     safeQuery(
-      supabase.from("services").select("*").eq("active", true).order("sort_order"),
+      supabase.from("mairie_services").select("*").eq("active", true).order("sort_order"),
       DEFAULT_SERVICES
     ),
     safeQuery(
-      supabase.from("news").select("*").eq("published", true).order("published_at", { ascending: false }).limit(6),
+      supabase.from("mairie_news").select("*").eq("published", true).order("published_at", { ascending: false }).limit(6),
       DEFAULT_NEWS
     ),
   ]);
@@ -214,7 +214,7 @@ export async function getDocumentTypes(): Promise<DocumentType[]> {
   const supabase = getSupabasePublicClient();
   if (!supabase) return DEFAULT_DOCUMENT_TYPES;
   return safeQuery(
-    supabase.from("document_types").select("*").eq("active", true).order("sort_order"),
+    supabase.from("mairie_document_types").select("*").eq("active", true).order("sort_order"),
     DEFAULT_DOCUMENT_TYPES
   );
 }
@@ -242,7 +242,7 @@ export async function getSiteContent(): Promise<Record<string, string>> {
   if (!supabase) return DEFAULT_SITE_CONTENT;
 
   try {
-    const { data, error } = await supabase.from("site_content").select("key, value");
+    const { data, error } = await supabase.from("mairie_site_content").select("key, value");
     if (error || !data) return DEFAULT_SITE_CONTENT;
     return data.reduce<Record<string, string>>(
       (acc, item) => {
