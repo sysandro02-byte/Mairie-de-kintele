@@ -23,3 +23,38 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Start production server
+        run: |
+          npm start > /tmp/mairie-next.log 2>&1 &
+          echo $! > /tmp/mairie-next.pid
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/mairie-next.log
+          exit 1
+
+      - name: Smoke test critical routes
+        run: |
+          set -e
+          for path in / /demarches /demande /actualites /commune /contact /admin/login /admin/inscription /admin; do
+            echo "Testing $path"
+            curl -fSs "http://127.0.0.1:3000$path" >/dev/null
+          done
+
+      - name: Show server logs on failure
+        if: failure()
+        run: cat /tmp/mairie-next.log || true
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f /tmp/mairie-next.pid ]; then
+            kill "$(cat /tmp/mairie-next.pid)" || true
+          fi
