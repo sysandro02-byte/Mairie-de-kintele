@@ -60,7 +60,7 @@ export default function DocumentRequestForm({ documents, initialDocumentId }: Pr
       return;
     }
 
-    const { error } = await supabase!.from("document_requests").insert(payload);
+    const { error } = await supabase!.from("mairie_document_requests").insert(payload);
     if (error) {
       setErrorMessage("La demande n’a pas pu être enregistrée. Vérifiez vos informations puis réessayez.");
       setLoading(false);
