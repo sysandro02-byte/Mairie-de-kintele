@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     });
 
     const { data: account, error: accountError } = await adminClient
-      .from("admin_users")
+      .from("mairie_admin_users")
       .select("email, active")
       .eq("login_id", loginId)
       .maybeSingle();
