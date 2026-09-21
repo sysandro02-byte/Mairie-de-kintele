@@ -1,18 +1,20 @@
+-- Migration complémentaire pour la base Supabase partagée LoukaTech.
+-- Toutes les données de ce portail utilisent le préfixe mairie_.
 -- Ajout de la connexion backoffice par ID administrateur.
-alter table public.admin_users
+alter table public.mairie_admin_users
   add column if not exists login_id text;
 
-update public.admin_users
+update public.mairie_admin_users
 set login_id = lower(coalesce(nullif(login_id, ''), split_part(email, '@', 1)))
 where login_id is null or login_id = '';
 
-alter table public.admin_users
+alter table public.mairie_admin_users
   alter column login_id set not null;
 
 create unique index if not exists admin_users_login_id_key
-  on public.admin_users(login_id);
+  on public.mairie_admin_users(login_id);
 
-create or replace function private.handle_admin_signup()
+create or replace function private.mairie_handle_admin_signup()
 returns trigger
 language plpgsql
 security definer
@@ -30,12 +32,12 @@ begin
 
   select exists (
     select 1
-    from public.admin_allowlist a
+    from public.mairie_admin_allowlist a
     where lower(a.email) = lower(new.email)
   )
   into is_allowed;
 
-  insert into public.admin_users(user_id, email, login_id, full_name, active)
+  insert into public.mairie_admin_users(user_id, email, login_id, full_name, active)
   values (
     new.id,
     new.email,
@@ -53,4 +55,4 @@ begin
 end;
 $$;
 
-revoke all on function private.handle_admin_signup() from public, anon, authenticated;
+revoke all on function private.mairie_handle_admin_signup() from public, anon, authenticated;
