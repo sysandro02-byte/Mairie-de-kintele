@@ -9,8 +9,8 @@ const tabs = [
   ["overview", "Tableau de bord"],
   ["content", "Contenu"],
   ["slides", "Slider"],
-  ["services", "Services"],
-  ["news", "Actualités"],
+  ["mairie_services", "Services"],
+  ["mairie_news", "Actualités"],
   ["documents", "Documents"],
   ["requests", "Demandes"],
   ["media", "Médiathèque"],
@@ -45,13 +45,13 @@ export default function AdminDashboard() {
       contentRes,
       mediaRes,
     ] = await Promise.all([
-      supabase.from("hero_slides").select("*").order("sort_order"),
-      supabase.from("services").select("*").order("sort_order"),
-      supabase.from("news").select("*").order("published_at", { ascending: false }),
-      supabase.from("document_types").select("*").order("sort_order"),
-      supabase.from("document_requests").select("*, document_types(title)").order("created_at", { ascending: false }),
-      supabase.from("site_content").select("*").order("group_name").order("label"),
-      supabase.from("media_library").select("*").order("created_at", { ascending: false }),
+      supabase.from("mairie_hero_slides").select("*").order("sort_order"),
+      supabase.from("mairie_services").select("*").order("sort_order"),
+      supabase.from("mairie_news").select("*").order("published_at", { ascending: false }),
+      supabase.from("mairie_document_types").select("*").order("sort_order"),
+      supabase.from("mairie_document_requests").select("*, mairie_document_types(title)").order("created_at", { ascending: false }),
+      supabase.from("mairie_site_content").select("*").order("group_name").order("label"),
+      supabase.from("mairie_media_library").select("*").order("created_at", { ascending: false }),
     ]);
     setSlides(slidesRes.data || []);
     setServices(servicesRes.data || []);
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
 
       setUserEmail(data.user.email || "");
       const { data: admin } = await supabase
-        .from("admin_users")
+        .from("mairie_admin_users")
         .select("id, active, login_id")
         .eq("user_id", data.user.id)
         .eq("active", true)
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
   async function saveContent(row: Row) {
     if (!supabase) return;
     const { error } = await supabase
-      .from("site_content")
+      .from("mairie_site_content")
       .upsert({
         key: row.key,
         label: row.label,
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
 
     const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
     const path = `${Date.now()}-${safeName}`;
-    const { error: uploadError } = await supabase.storage.from("site-media").upload(path, file, {
+    const { error: uploadError } = await supabase.storage.from("mairie-media").upload(path, file, {
       cacheControl: "3600",
       upsert: false,
     });
@@ -156,8 +156,8 @@ export default function AdminDashboard() {
       return;
     }
 
-    const { data } = supabase.storage.from("site-media").getPublicUrl(path);
-    await supabase.from("media_library").insert({
+    const { data } = supabase.storage.from("mairie-media").getPublicUrl(path);
+    await supabase.from("mairie_media_library").insert({
       name: file.name,
       url: data.publicUrl,
       alt_text: file.name.replace(/\.[^.]+$/, ""),
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
           <section className="admin-stack">
             <div className="admin-section-actions">
               <p>Le slider public affiche les slides actives dans l’ordre défini.</p>
-              <button type="button" className="button button-primary" onClick={() => addRow("hero_slides", {
+              <button type="button" className="button button-primary" onClick={() => addRow("mairie_hero_slides", {
                 title: "Nouvelle mise en avant",
                 subtitle: "Ajoutez votre texte ici.",
                 image_url: "",
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
               })}>+ Ajouter une slide</button>
             </div>
             {slides.map((row, index) => (
-              <EditorCard key={row.id} title={row.title || "Slide"} onDelete={() => deleteRow("hero_slides", row.id)}>
+              <EditorCard key={row.id} title={row.title || "Slide"} onDelete={() => deleteRow("mairie_hero_slides", row.id)}>
                 <AdminInput label="Titre" value={row.title || ""} onChange={(value) => updateAt(setSlides, index, "title", value)} />
                 <AdminTextarea label="Sous-titre" value={row.subtitle || ""} onChange={(value) => updateAt(setSlides, index, "subtitle", value)} />
                 <AdminInput label="URL de l’image" value={row.image_url || ""} onChange={(value) => updateAt(setSlides, index, "image_url", value)} />
@@ -286,22 +286,22 @@ export default function AdminDashboard() {
                   <AdminInput label="Ordre" type="number" value={String(row.sort_order ?? 0)} onChange={(value) => updateAt(setSlides, index, "sort_order", Number(value))} />
                   <AdminCheckbox label="Visible" checked={Boolean(row.active)} onChange={(value) => updateAt(setSlides, index, "active", value)} />
                 </div>
-                <button className="admin-save" type="button" onClick={() => saveRow("hero_slides", row)}>Enregistrer</button>
+                <button className="admin-save" type="button" onClick={() => saveRow("mairie_hero_slides", row)}>Enregistrer</button>
               </EditorCard>
             ))}
           </section>
         )}
 
-        {tab === "services" && (
+        {tab === "mairie_services" && (
           <section className="admin-stack">
             <div className="admin-section-actions">
               <p>Gérez les cartes de services visibles sur la page d’accueil.</p>
-              <button type="button" className="button button-primary" onClick={() => addRow("services", {
+              <button type="button" className="button button-primary" onClick={() => addRow("mairie_services", {
                 icon: "•", title: "Nouveau service", description: "", href: "/demarches", sort_order: services.length + 1, active: true,
               })}>+ Ajouter un service</button>
             </div>
             {services.map((row, index) => (
-              <EditorCard key={row.id} title={row.title} onDelete={() => deleteRow("services", row.id)}>
+              <EditorCard key={row.id} title={row.title} onDelete={() => deleteRow("mairie_services", row.id)}>
                 <div className="admin-two-cols">
                   <AdminInput label="Icône" value={row.icon || ""} onChange={(value) => updateAt(setServices, index, "icon", value)} />
                   <AdminInput label="Titre" value={row.title || ""} onChange={(value) => updateAt(setServices, index, "title", value)} />
@@ -312,22 +312,22 @@ export default function AdminDashboard() {
                   <AdminInput label="Ordre" type="number" value={String(row.sort_order ?? 0)} onChange={(value) => updateAt(setServices, index, "sort_order", Number(value))} />
                   <AdminCheckbox label="Visible" checked={Boolean(row.active)} onChange={(value) => updateAt(setServices, index, "active", value)} />
                 </div>
-                <button className="admin-save" type="button" onClick={() => saveRow("services", row)}>Enregistrer</button>
+                <button className="admin-save" type="button" onClick={() => saveRow("mairie_services", row)}>Enregistrer</button>
               </EditorCard>
             ))}
           </section>
         )}
 
-        {tab === "news" && (
+        {tab === "mairie_news" && (
           <section className="admin-stack">
             <div className="admin-section-actions">
               <p>Publiez ou retirez des actualités depuis le backoffice.</p>
-              <button type="button" className="button button-primary" onClick={() => addRow("news", {
+              <button type="button" className="button button-primary" onClick={() => addRow("mairie_news", {
                 category: "Municipalité", title: "Nouvelle actualité", excerpt: "", body: "", image_url: "", published: false, published_at: new Date().toISOString(),
               })}>+ Nouvelle actualité</button>
             </div>
             {news.map((row, index) => (
-              <EditorCard key={row.id} title={row.title} onDelete={() => deleteRow("news", row.id)}>
+              <EditorCard key={row.id} title={row.title} onDelete={() => deleteRow("mairie_news", row.id)}>
                 <div className="admin-two-cols">
                   <AdminInput label="Catégorie" value={row.category || ""} onChange={(value) => updateAt(setNews, index, "category", value)} />
                   <AdminInput label="Titre" value={row.title || ""} onChange={(value) => updateAt(setNews, index, "title", value)} />
@@ -336,7 +336,7 @@ export default function AdminDashboard() {
                 <AdminTextarea label="Contenu" value={row.body || ""} onChange={(value) => updateAt(setNews, index, "body", value)} />
                 <AdminInput label="URL de l’image" value={row.image_url || ""} onChange={(value) => updateAt(setNews, index, "image_url", value)} />
                 <AdminCheckbox label="Publié" checked={Boolean(row.published)} onChange={(value) => updateAt(setNews, index, "published", value)} />
-                <button className="admin-save" type="button" onClick={() => saveRow("news", row)}>Enregistrer</button>
+                <button className="admin-save" type="button" onClick={() => saveRow("mairie_news", row)}>Enregistrer</button>
               </EditorCard>
             ))}
           </section>
@@ -346,12 +346,12 @@ export default function AdminDashboard() {
           <section className="admin-stack">
             <div className="admin-section-actions">
               <p>Définissez les documents que les internautes peuvent demander.</p>
-              <button type="button" className="button button-primary" onClick={() => addRow("document_types", {
+              <button type="button" className="button button-primary" onClick={() => addRow("mairie_document_types", {
                 title: "Nouveau document", description: "", requirements: [], fee_text: "", processing_time: "", sort_order: documents.length + 1, active: true,
               })}>+ Ajouter un document</button>
             </div>
             {documents.map((row, index) => (
-              <EditorCard key={row.id} title={row.title} onDelete={() => deleteRow("document_types", row.id)}>
+              <EditorCard key={row.id} title={row.title} onDelete={() => deleteRow("mairie_document_types", row.id)}>
                 <AdminInput label="Nom du document" value={row.title || ""} onChange={(value) => updateAt(setDocuments, index, "title", value)} />
                 <AdminTextarea label="Description" value={row.description || ""} onChange={(value) => updateAt(setDocuments, index, "description", value)} />
                 <AdminTextarea
@@ -365,7 +365,7 @@ export default function AdminDashboard() {
                   <AdminInput label="Ordre" type="number" value={String(row.sort_order ?? 0)} onChange={(value) => updateAt(setDocuments, index, "sort_order", Number(value))} />
                   <AdminCheckbox label="Disponible en ligne" checked={Boolean(row.active)} onChange={(value) => updateAt(setDocuments, index, "active", value)} />
                 </div>
-                <button className="admin-save" type="button" onClick={() => saveRow("document_types", row)}>Enregistrer</button>
+                <button className="admin-save" type="button" onClick={() => saveRow("mairie_document_types", row)}>Enregistrer</button>
               </EditorCard>
             ))}
           </section>
@@ -377,7 +377,7 @@ export default function AdminDashboard() {
             <RequestTable
               rows={requests}
               onChange={(id, key, value) => setRequests((items) => items.map((item) => item.id === id ? { ...item, [key]: value } : item))}
-              onSave={(row) => saveRow("document_requests", row)}
+              onSave={(row) => saveRow("mairie_document_requests", row)}
             />
           </section>
         )}
