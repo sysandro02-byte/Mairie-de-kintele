@@ -214,6 +214,7 @@ insert into public.mairie_news(category,title,excerpt,body,image_url,published,p
 ('Cadre de vie','Un territoire entre université, sport et grands équipements','Kintélé s’appuie sur des infrastructures universitaires, sportives et routières qui structurent son développement.','','https://commons.wikimedia.org/wiki/Special:Redirect/file/Stade%20de%20la%20concorde%20de%20Kintele.jpg',true,now() - interval '20 days');
 
 -- RLS
+alter table public.loukatech_apps enable row level security;
 alter table public.mairie_admin_allowlist enable row level security;
 alter table public.mairie_admin_users enable row level security;
 alter table public.mairie_site_content enable row level security;
